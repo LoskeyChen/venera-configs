@@ -116,7 +116,7 @@ class Goda extends ComicSource {
   // 源唯一标识
   key = "goda"
 
-  version = "1.2.2"
+  version = "1.2.3"
 
   minAppVersion = "1.4.0"
 
@@ -153,10 +153,23 @@ class Goda extends ComicSource {
     return `https://${this.loadSetting("image")}`;
   }
 
+  // 浏览器级请求头：让 Cloudflare 机器人评分更低，减少被反复要求验证的概率。
+  // 注意 UA 使用 Chrome（与帮用户过 Cloudflare 挑战的 WebView 一致），
+  // 避免"验证过 Chrome、源请求用 Firefox"带来的 UA 不一致导致的二次挑战。
   get headers() {
     return {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:144.0) Gecko/20100101 Firefox/144.0",
-      "Referer": this.baseUrl
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,application/json,image/avif,image/webp,*/*;q=0.8",
+      "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+      "Connection": "keep-alive",
+      "Referer": this.baseUrl,
+      "Origin": this.baseUrl,
+      "Sec-Fetch-Dest": "document",
+      "Sec-Fetch-Mode": "navigate",
+      "Sec-Fetch-Site": "same-origin",
+      "sec-ch-ua": '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": '"Windows"'
     };
   }
 
@@ -367,6 +380,12 @@ class Goda extends ComicSource {
   /// 单部漫画相关
   comic = {
     onThumbnailLoad: (url) => {
+      return {
+        headers: this.headers
+      }
+    },
+    // 章节图片同样走浏览器级请求头，降低独立图片域名被 Cloudflare 挑战的概率
+    onImageLoad: (url) => {
       return {
         headers: this.headers
       }
