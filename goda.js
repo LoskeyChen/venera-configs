@@ -116,18 +116,18 @@ class Goda extends ComicSource {
   // 源唯一标识
   key = "goda"
 
-  version = "1.2.1"
+  version = "1.2.2"
 
   minAppVersion = "1.4.0"
 
   // 更新地址
-  url = "https://cdn.jsdelivr.net/gh/venera-app/venera-configs@main/goda.js"
+  url = "https://cdn.jsdelivr.net/gh/LoskeyChen/venera-configs@main/goda.js"
 
   settings = {
     domains: {
-      title: "域名",
+      title: "域名(主站 m.g-mh.org，备用 g-mh.org / manhuascans.org)",
       type: "input",
-      default: "godamh.com"
+      default: "m.g-mh.org"
     },
     api: {
       title: "API域名",
@@ -137,7 +137,7 @@ class Goda extends ComicSource {
     image: {
       title: "图片域名",
       type: "input",
-      default: "c-nd3-1.6wm.top"
+      default: "c-nc-1.6wm.top"
     }
   }
 
