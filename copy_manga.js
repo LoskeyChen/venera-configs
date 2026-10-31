@@ -4,11 +4,11 @@ class CopyManga extends ComicSource {
 
     key = "copy_manga"
 
-    version = "1.4.3"
+    version = "1.4.4"
 
     minAppVersion = "1.6.0"
 
-    url = "https://cdn.jsdelivr.net/gh/venera-app/venera-configs@main/copy_manga.js"
+    url = "https://cdn.jsdelivr.net/gh/LoskeyChen/venera-configs@main/copy_manga.js"
 
     async getReqID() {
         if (this.copyRegion === "0") {
@@ -1115,15 +1115,19 @@ class CopyManga extends ComicSource {
     }
 
     async refreshSearchApi() {
-        let url = "https://www.copy20.com/search"
-        let res = await fetch(url)
-        let searchApi = ""
-        if (res.status === 200) {
-            let text = await res.text()
-            let match = text.match(/const countApi = "([^"]+)"/)
-            if (match && match[1]) {
-                CopyManga.searchApi = match[1]
+        try {
+            let url = "https://www.copy20.com/search"
+            let res = await fetch(url)
+            let searchApi = ""
+            if (res.status === 200) {
+                let text = await res.text()
+                let match = text.match(/const countApi = "([^"]+)"/)
+                if (match && match[1]) {
+                    CopyManga.searchApi = match[1]
+                }
             }
+        } catch (e) {
+            // www.copy20.com 可能不可达(TLS 失败等), 忽略并保持默认 searchApi, 避免中断 init
         }
     }
 
@@ -1137,7 +1141,12 @@ class CopyManga extends ComicSource {
         }
         if (res.status === 200) {
             let data = await res.json();
-            this.settings.base_url = data.results.api[0][0];
+            let host = data?.results?.api?.[0]?.[0];
+            // network2 接口可能返回污染/诱饵域名(如 t66y.com、mangafunb 等),
+            // 仅当返回主机看起来像拷贝漫画官方域名时才采用, 否则保留默认 api.copy2000.online
+            if (host && /(copy|manga)/i.test(host) && !/(t66y|mangafunb|s3\.)/i.test(host)) {
+                this.settings.base_url = host;
+            }
         }
     }
 }
